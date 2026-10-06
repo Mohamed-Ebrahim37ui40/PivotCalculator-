@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d7a4f" />
+  <meta name="description" content="PivotCalc - حاسبة البيفوت الزراعي - حساب العجلات والمساحات بمعادلة بيرو" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="PivotCalc" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <title>PivotCalc | حاسبة البيفوت</title>
+</head>
+<body class="rtl">
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-brand">
+      <img src="icons/logo.png" alt="PivotCalc" class="header-logo" />
+      <span class="header-title">PivotCalc</span>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="btnIdea" title="Idea" aria-label="Idea">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+      </button>
+      <button class="icon-btn" id="btnAyah" title="Ayah" aria-label="Ayah">
+        <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+      </button>
+      <button class="icon-btn" id="btnAbout" title="About" aria-label="About">
+        <svg viewBox="0 0 24 24"><path d="M11 7h2v2h-2V7zm0 4h2v6h-2v-6zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+      </button>
+      <button class="icon-btn" id="btnTheme" title="Theme" aria-label="Theme">
+        <span id="themeIcon">
+          <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 01-4.4 2.26 5.403 5.403 0 01-3.4-9.54c-.44-.06-.9-.1-1.36-.1z"/></svg>
+        </span>
+      </button>
+      <button class="icon-btn" id="btnLang" title="Language" aria-label="Language" data-i18n="langToggle">English</button>
+    </div>
+  </header>
+
+  <!-- Main Page -->
+  <div id="mainPage" class="page active">
+    <main class="main-content">
+      <!-- Tabs -->
+      <nav class="tabs" role="tablist">
+        <button class="tab-btn active" data-tab="area" data-i18n="tabArea">حساب المساحة</button>
+        <button class="tab-btn" data-tab="planting" data-i18n="tabPlanting">معدل الزراعة</button>
+        <button class="tab-btn" data-tab="harvest" data-i18n="tabHarvest">معدل الحصاد</button>
+        <button class="tab-btn" data-tab="needs" data-i18n="tabNeeds">احتياجات الزراعة والحصاد</button>
+      </nav>
+
+      <!-- Panel 1: Area -->
+      <div id="panel-area" class="tab-panel active">
+        <div class="card">
+          <div class="form-group">
+            <label class="form-label" data-i18n="pivotArea">مساحة البيفوت (فدان)</label>
+            <input type="number" id="areaInput" class="form-input" min="0" step="0.01" placeholder="مثال: 125" inputmode="decimal" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="brandSelect">ماركة البيفوت</label>
+            <select id="brandSelect" class="form-select"></select>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-primary" id="btnAutoFill" data-i18n="autoFill">ملء تلقائي</button>
+            <button class="btn btn-outline" id="btnClear" data-i18n="clear">مسح</button>
+          </div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-value" id="statRadius">—</div>
+            <div class="stat-label" data-i18n="radiusLabel">نصف القطر (م)</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="statTowers">—</div>
+            <div class="stat-label" data-i18n="numTowersLabel">عدد الأبراج</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="statSpans">—</div>
+            <div class="stat-label" data-i18n="totalSpans">إجمالي عدد الجرر</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" data-i18n="tabArea">حساب المساحة</div>
+          <div class="table-wrap">
+            <table class="wheels-table">
+              <thead>
+                <tr>
+                  <th data-i18n="wheelNum">رقم العجلة</th>
+                  <th data-i18n="spanCount">عدد الجرر</th>
+                  <th data-i18n="wheelArea">المساحة (فدان)</th>
+                </tr>
+              </thead>
+              <tbody id="wheelsBody"></tbody>
+            </table>
+          </div>
+          <div class="output-box mt-12">
+            <div class="label" data-i18n="totalAreaLabel">المساحة الإجمالية</div>
+            <div class="value" id="statTotalArea">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 2: Planting Rate -->
+      <div id="panel-planting" class="tab-panel">
+        <div class="card">
+          <div class="card-title" data-i18n="tabPlanting">معدل الزراعة</div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="avgJumboWeight">متوسط وزن الجامبو (كجم)</label>
+            <input type="number" id="inputAvgWeight" class="form-input" min="0" step="1" inputmode="decimal" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="totalJumbos">إجمالي عدد الجامبوهات</label>
+            <input type="number" id="inputTotalJumbos" class="form-input" min="0" step="1" inputmode="numeric" />
+          </div>
+          <div class="output-box">
+            <div class="label" data-i18n="totalSeedTons">إجمالي كمية التقاوي (طن)</div>
+            <div class="value" id="outSeedTons">—</div>
+          </div>
+          <div class="output-box mt-8">
+            <div class="label" data-i18n="plantingRate">معدل الزراعة (طن/فدان)</div>
+            <div class="value" id="outPlantingRate">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 3: Harvest Rate -->
+      <div id="panel-harvest" class="tab-panel">
+        <div class="card">
+          <div class="card-title" data-i18n="tabHarvest">معدل الحصاد</div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="harvestedJumbos">عدد الجامبوهات المحصودة</label>
+            <input type="number" id="inputHarvested" class="form-input" min="0" step="1" inputmode="numeric" />
+          </div>
+          <div class="output-box">
+            <div class="label" data-i18n="harvestRate">معدل الحصاد (جامبو/فدان)</div>
+            <div class="value" id="outHarvestRate">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 4: Needs -->
+      <div id="panel-needs" class="tab-panel">
+        <div class="card">
+          <div class="card-title" data-i18n="plantingNeeds">احتياجات الزراعة</div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="avgWeightTons">متوسط وزن الجامبو (طن)</label>
+            <input type="number" id="input-needsAvgWeight" class="form-input" min="0" step="0.01" inputmode="decimal" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="areaFeddan">المساحة (فدان)</label>
+            <input type="number" id="input-needsArea" class="form-input" min="0" step="0.01" inputmode="decimal" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="rateTonsFeddan">معدل الزراعة (طن/فدان)</label>
+            <input type="number" id="input-needsRate" class="form-input" min="0" step="0.001" inputmode="decimal" />
+          </div>
+          <div class="output-box">
+            <div class="label" data-i18n="numJumbosNeeded">عدد الجامبوهات للمساحة</div>
+            <div class="value" id="outNeedsJumbos">—</div>
+          </div>
+          <div class="output-box mt-8">
+            <div class="label" data-i18n="quantityTons">الكمية (طن)</div>
+            <div class="value" id="outNeedsTons">—</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" data-i18n="harvestNeeds">احتياجات الحصاد</div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="rateJumbosFeddan">معدل الحصاد (جامبو/فدان)</label>
+            <input type="number" id="input-harvestRateInput" class="form-input" min="0" step="0.01" inputmode="decimal" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="areaFeddan">المساحة (فدان)</label>
+            <input type="number" id="input-harvestArea" class="form-input" min="0" step="0.01" inputmode="decimal" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="truckCapacity">حمولة سيارة النقل (جامبو)</label>
+            <input type="number" id="input-truckCapacity" class="form-input" min="0" step="1" inputmode="numeric" />
+          </div>
+          <div class="output-box">
+            <div class="label" data-i18n="numJumbosNeeded">عدد الجامبوهات</div>
+            <div class="value" id="outHarvestJumbos">—</div>
+          </div>
+          <div class="output-box mt-8">
+            <div class="label" data-i18n="numTrucks">عدد السيارات</div>
+            <div class="value" id="outNumTrucks">—</div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <img src="icons/logo.png" alt="Logo" class="footer-logo" />
+      <div class="footer-name" data-i18n="designedBy">تصميم مهندس محمد إبراهيم (فرمينو)</div>
+      <div class="footer-note" data-i18n="equationsNote">جميع المعادلات مبنية على معادلة بيرو</div>
+      <div class="footer-note" data-i18n="contact">التواصل</div>
+      <div class="contact-grid">
+        <a class="contact-link" href="mailto:mohamed.ibrahim11617@gmail.com" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          Email
+        </a>
+        <a class="contact-link" href="https://www.linkedin.com/in/mohamed-ebrahim-771b0540a" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M19 3a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14m-.5 15.5v-5.3a3.26 3.26 0 00-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 011.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 001.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 00-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+          LinkedIn
+        </a>
+        <a class="contact-link" href="https://www.facebook.com/share/1JHu4fGCXa/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M12 2.04c-5.5 0-10 4.49-10 10.02 0 5 3.66 9.15 8.44 9.9v-7H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7a10 10 0 008.44-9.9c0-5.53-4.5-10.02-10-10.02z"/></svg>
+          Facebook
+        </a>
+        <a class="contact-link" href="https://x.com/Firmo13MH" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          X
+        </a>
+        <a class="contact-link" href="https://wa.me/qr/QIZ446FGUAGGD1" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp
+        </a>
+        <a class="contact-link" href="https://t.me/FR6060ME" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.788.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+          Telegram
+        </a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Custom Page -->
+  <div id="customPage" class="page">
+    <main class="main-content">
+      <div class="page-header">
+        <button class="btn btn-outline" id="btnCustomBack" data-i18n="back">رجوع</button>
+        <h2 data-i18n="customTitle">اختيار آخر - تعديل يدوي</h2>
+      </div>
+      <div class="card">
+        <div class="btn-group mb-0">
+          <button class="btn btn-primary" id="btnCustomAuto" data-i18n="autoFill">ملء تلقائي</button>
+          <button class="btn btn-primary" id="btnCustomSave" data-i18n="saveContinue">حفظ ومتابعة</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table class="wheels-table">
+            <thead>
+              <tr>
+                <th data-i18n="wheelNum">رقم العجلة</th>
+                <th data-i18n="customSpans">عدد الجرر</th>
+                <th data-i18n="customLengths">طول البرج (م)</th>
+              </tr>
+            </thead>
+            <tbody id="customBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Overlay -->
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle"></h3>
+        <button class="icon-btn" id="modalClose" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Install Banner -->
+  <div class="install-banner" id="installBanner">
+    <span data-i18n="installApp">تثبيت التطبيق</span>
+    <button id="btnInstall" data-i18n="installApp">تثبيت</button>
+    <button id="btnInstallDismiss" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.5);">✕</button>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
